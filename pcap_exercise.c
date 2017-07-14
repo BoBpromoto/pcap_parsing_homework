@@ -82,6 +82,7 @@ int main (int argc, char *argv[]) {
 					 print_ethernet_header_info(packet);
 					 packet = packet + 14;
 					 pac_div = print_ip_header_info(packet);
+					 printf("%d\n", pac_div);
 					 packet = packet + pac_div;
 					 print_tcp_header_info(packet);
 					 packet = packet + 20;
@@ -132,15 +133,15 @@ int print_ip_header_info (const u_char *data) {
 					 	printf("\nProtocol : I don't know\n");
 			}
 
-		  return ip_h->ip_vhl*4;
+		  return (((ip_h)->ip_vhl) & 0x0f)*4;
 }
 
 void print_tcp_header_info (const u_char *data) {
 		  struct _tcp *tcp_h = (struct _tcp *) data;
 
 		  printf ("\n-----------TCP Header-----------\n");
-		  printf ("Source Port : %s\n", ntohs(tcp_h -> tcp_sport));
-		  printf ("Destination : %s\n", ntohs(tcp_h -> tcp_dport));
+		  printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
+		  printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
 }
 
 void print_data (const u_char *data) {
