@@ -31,11 +31,12 @@ struct _ip {
 struct _tcp {
 		  u_short tcp_sport;
 		  u_short tcp_dport;
+		  u_char th_off;
 };
 
 void print_ethernet_header_info (const u_char *data);
 int print_ip_header_info (const u_char *data);
-void print_tcp_header_info (const u_char *data);
+int print_tcp_header_info (const u_char *data);
 void print_data (const u_char *data);
 
 int main (int argc, char *argv[]) {
@@ -82,10 +83,9 @@ int main (int argc, char *argv[]) {
 					 print_ethernet_header_info(packet);
 					 packet = packet + 14;
 					 pac_div = print_ip_header_info(packet);
-					 printf("%d\n", pac_div);
 					 packet = packet + pac_div;
-					 print_tcp_header_info(packet);
-					 packet = packet + 20;
+					 pac_div = print_tcp_header_info(packet);
+					 packet = packet + pac_div;
 					 print_data(packet);
 			}
 		pcap_freecode(&fp);
@@ -136,12 +136,14 @@ int print_ip_header_info (const u_char *data) {
 		  return (((ip_h)->ip_vhl) & 0x0f)*4;
 }
 
-void print_tcp_header_info (const u_char *data) {
+int print_tcp_header_info (const u_char *data) {
 		  struct _tcp *tcp_h = (struct _tcp *) data;
 
 		  printf ("\n-----------TCP Header-----------\n");
 		  printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
 		  printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
+
+		  return (((tcp_h)->th_off) & 0xf0);
 }
 
 void print_data (const u_char *data) {
