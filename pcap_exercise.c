@@ -46,6 +46,7 @@ int main (int argc, char *argv[]) {
 		  struct pcap_pkthdr *header;
 		  const u_char *packet;
 		  int res;
+		  int pac_div;
 		  bpf_u_int32 net;
 		 		  
 		  dev = pcap_lookupdev(errbuf);
@@ -80,8 +81,8 @@ int main (int argc, char *argv[]) {
 					 }
 					 print_ethernet_header_info(packet);
 					 packet = packet + 14;
-					 print_ip_header_info(packet);
-					 packet = packet + print_ip_header_info(packet);
+					 pac_div = print_ip_header_info(packet);
+					 packet = packet + pac_div;
 					 print_tcp_header_info(packet);
 					 packet = packet + 20;
 					 print_data(packet);
@@ -93,22 +94,26 @@ int main (int argc, char *argv[]) {
 void print_ethernet_header_info (const u_char *data) {
 		  struct _ethernet *ether = (struct _ethernet *) data;
 
-		  if (ntohs(ether->ether_type) == 0x0800) {
-					 printf("Next Protocol is IPv4\n");
-		  }
-		  else if (ntohs(ether->ether_type) == 0x0806) {
-					 printf("Next Protocol is ARP\n");
-		  }
-		  else
-					 printf("hum... I will update data\n");
-
 		  printf ("\n-----------ETHERNET Header-----------\n");
 		  printf ("Source Mac Address : %02x - %02x - %02x - %02x - %02x - %02x\n", ether->ether_shost[0], ether->ether_shost[1], ether->ether_shost[2], ether->ether_shost[3], ether->ether_shost[4], ether->ether_shost[5]);
 		  printf("Destination Mac Address : %02x - %02x - %02x - %02x - %02x - %02x\n", ether->ether_dhost[0], ether->ether_dhost[1], ether->ether_dhost[2], ether->ether_dhost[3], ether->ether_dhost[4], ether->ether_dhost[5]);
+		  if (ntohs(ether->ether_type) == 0x0800) {
+					 printf("\nNext Protocol is IPv4\n");
+		  }
+		  else if (ntohs(ether->ether_type) == 0x0806) {
+					 printf("\nNext Protocol is ARP\n");
+		  }
+		  else
+					 printf("\nhum... I will update data\n");
+
 }
 
 int print_ip_header_info (const u_char *data) {
 		  struct _ip *ip_h = (struct _ip *) data;
+
+		  printf ("\n-----------IP Header-----------\n");
+		  printf ("Source IP : %s\n", inet_ntoa(ip_h->ip_src));
+		  printf ("Destination IP : %s\n", inet_ntoa(ip_h->ip_dst));
 
 		  switch (ip_h->ip_proto) {
 					 case 1 :
@@ -116,20 +121,16 @@ int print_ip_header_info (const u_char *data) {
 						break;
 					 case 2 :
 					 	printf("\nProtocol : IGMP\n");
-						break ;
-					 case 6 : 
-						printf("\nProtocol : TCP\n");
-						break ;
+					 	break ;
+					 case 6 :
+					 	printf("\nProtocol : TCP\n");
+					 	break ;
 					 case 17 :
-						printf("\nProtocol : UDP\n");
-						break;
- 					 default : 
-						printf("\nProtocol : I don't know\n");
-		  }
-
-		  printf ("\n-----------IP Header-----------\n");
-		  printf ("Source IP : %s\n", inet_ntoa(ip_h->ip_src));
-		  printf ("Destination IP : %s\n", inet_ntoa(ip_h->ip_dst));
+					 	printf("\nProtocol : UDP\n");
+					 	break;
+					 default :
+					 	printf("\nProtocol : I don't know\n");
+			}
 
 		  return ip_h->ip_vhl*4;
 }
@@ -143,6 +144,6 @@ void print_tcp_header_info (const u_char *data) {
 }
 
 void print_data (const u_char *data) {
-		  printf("--------------HTTP Stream----------\n");
+		  printf("\n--------------HTTP Stream----------\n");
 		  printf("%s\n", data);
 }
