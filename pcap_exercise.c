@@ -143,7 +143,7 @@ int print_tcp_header_info (const u_char *data) {
 		  printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
 		  printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
 
-		  return (((tcp_h)->th_off) & 0xf0);
+		  return (((tcp_h)->th_off) & 0xe8);
 }
 
 void print_data (const u_char *data) {
