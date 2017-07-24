@@ -74,14 +74,20 @@ int main (int argc, char *argv[]) {
 					 return(2);
 		  }
 
-		  while((res = pcap_next_ex(handle, &header, &packet)) >=0 ) {
+		  while(1) { 
+					 (res = pcap_next_ex(handle, &header, &packet));
 					 if (res == 0) 
 								continue;
 					 if (res == -1) {
 								fprintf(stderr, "Couldn't read the next packet : %s\n", pcap_geterr(handle));
 								 return(2);
 					 }
-					 print_packet_header_info(packet);
+					 if (res == 1 ) {
+								print_packet_header_info(packet);
+					 }
+					 if (res == -2) {
+								printf("there are no more packets to read from the savefile\n");
+					 }
 			}
 		pcap_freecode(&fp);
 		pcap_close(handle);		
