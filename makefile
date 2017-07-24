@@ -4,9 +4,9 @@ pcap_my : pcap_exercise.o
 
 			gcc -o pcap_my pcap_exercise.o -lpcap
 
-pcap_exercise.o : pcap_exercise.c
+pcap_exercise.o : pcap_exercise_170724.c
 
-			gcc -c -o pcap_exercise.o pcap_exercise.c -lpcap
+			gcc -c -o pcap_exercise.o pcap_exercise_170724.c -lpcap
 
 clean :
 
