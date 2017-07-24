@@ -31,6 +31,8 @@ struct _ip {
 struct _tcp {
 		  u_short tcp_sport;
 		  u_short tcp_dport;
+		  u_int tcp_seqno;
+		  u_int tcp_ackno;
 		  u_char th_off;
 };
 
@@ -88,7 +90,7 @@ int main (int argc, char *argv[]) {
 void print_packet_header_info (const u_char *data) {
 		  struct _ethernet *ether = (struct _ethernet *) data;
 		  struct _ip *ip_h = (struct _ip *) (data+14);
-		  struct _tcp *tcp_h = (struct _tcp *) (data+14+(((ip_h)->ip_vhl) & 0x0f)*4);
+		  struct _tcp *tcp_h = (struct _tcp *) (data+14+(((ip_h->ip_vhl) & 0x0f)*4));
 		  int i = 0, ip_type = (ip_h->ip_proto);
 		  char buf[20];
 //		  printf ("%x\n", ip_type);
@@ -135,10 +137,10 @@ void print_packet_header_info (const u_char *data) {
 					       printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
 					       printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
 
-							 printf("\nip header len : %2x\n", ((ip_h->ip_len) & 0x0f)*4);
-							 printf("\ntcp header len : %2x\n", (tcp_h->th_off) & 0xf0);
-
-//							 data = data + 14 + ((ip_h->ip_len) - (((((ip_h->ip_vhl) & 0x0f))*4) + ((tcp_h->th_off) & 0xde)));
+							 printf("\nip header len : %d\n", ((ip_h->ip_vhl) & 0x0f)*4);
+							 printf("\ntcp header len : %d\n", (((tcp_h->th_off) & 0xf0) >> 4)*4);
+							 printf("\nfrom ip total len : %d\n", (ip_h->ip_len));
+							 data = data + 14 + ((ip_h->ip_len) - ((((ip_h->ip_vhl) & 0x0f) *4) + (((tcp_h->th_off) & 0xf0)));
 							 printf("\n--------------HTTP Stream----------\n");
 							 printf("%s\n", data);
 				 }
@@ -149,5 +151,4 @@ void print_packet_header_info (const u_char *data) {
 		  else {
 					 printf("\nhum... I will update data\n");
 		  }
-		  printf("%02x\n",ip_h->ip_len);
 }
