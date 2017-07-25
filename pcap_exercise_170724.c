@@ -58,10 +58,10 @@ int main (int argc, char *argv[]) {
 		 		  
 		 // dev = pcap_lookupdev(errbuf);
 		 // if (dev == NULL) {
-		//			 fprintf (stderr, "Couldn't find default device : %s\n", errbuf);
-		//		 return(2);
+		 //		 fprintf (stderr, "Couldn't find default device : %s\n", errbuf);
+	 	 //		 return(2);
 		 // }
-		 dev = argv[1];
+		  dev = argv[1];
 		  printf("Device : %s\n", dev);
 
 		  handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
@@ -110,7 +110,7 @@ void print_packet_header_info (const u_char *data) {
 		  char buf[20];
 //		  printf ("%x\n", ip_type);
 
-		  printf ("\n-----------ETHERNET Header-----------\n");
+		  printf ("\n*****************ETHERNET Header*****************\n");
 		  printf ("Source Mac Address : ");
 		  for (i=0; i<6; i++) {
 					  printf ("%02x", ether->ether_shost[i]);
@@ -143,25 +143,28 @@ void print_packet_header_info (const u_char *data) {
 								}
 					 }
 					 else {
-							 printf ("\n-----------IP Header-----------\n");
+							 printf ("\n********************IP Header********************\n");
 							 printf ("Source IP : %s\n", inet_ntop(AF_INET, &(ip_h->ip_src), buf, sizeof(buf)));
 							 printf ("Destination IP : %s\n", inet_ntop(AF_INET, &(ip_h->ip_dst), buf, sizeof(buf)));
 
 							 printf ("\n4th layer Protocol is TCP\n");
-					       printf ("\n-----------TCP Header-----------\n");
-					       printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
-					       printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
 
-							 printf("\ntotal ip len : %d\n", total_ip_len);
-							 printf("ip header len : %d\n", ip_h_len);
-							 printf("tcp header len : %d\n", tcp_h_len);
+							 if ((ntohs(tcp_h->tcp_sport)) == 80 || (ntohs(tcp_h->tcp_dport)) == 80) {
+										printf ("\n*******************TCP Header*******************\n");
+										printf ("Source Port : %d\n", ntohs(tcp_h->tcp_sport));
+										printf ("Destination : %d\n", ntohs(tcp_h->tcp_dport));
 
-							 printf("\ndata len : %d\n", total_ip_len - (ip_h_len + tcp_h_len));
+										printf("\ntotal ip len : %d\n", total_ip_len);
+										printf("ip header len : %d\n", ip_h_len);
+										printf("tcp header len : %d\n", tcp_h_len);
 
-							 data = data + 14 + ip_h_len + tcp_h_len;
-							 printf("\n--------------HTTP Stream----------\n");
-							 printf("%s\n", data);
-				 }
+										printf("\ndata len : %d\n", total_ip_len - (ip_h_len + tcp_h_len));
+
+										data = data + 14 + ip_h_len + tcp_h_len;
+										printf("\n*******************HTTP Stream*******************\n");
+										printf("%s\n", data);
+								}
+					 }
 		  }
 		  else if (ntohs(ether->ether_type) == 0x0806) {
 					 printf("\nNext Protocol is ARP\n");
