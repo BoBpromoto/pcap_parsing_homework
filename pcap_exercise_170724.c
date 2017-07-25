@@ -50,15 +50,21 @@ int main (int argc, char *argv[]) {
 		  int res;
 		  int pac_div;
 		  bpf_u_int32 net;
-		 		  
-		  dev = pcap_lookupdev(errbuf);
-		  if (dev == NULL) {
-					 fprintf (stderr, "Couldn't find default device : %s\n", errbuf);
-					 return(2);
-		  }
-//		  printf("Device : %s\n", dev);
 
-		  handle = pcap_open_live("dum0", BUFSIZ, 1, 1000, errbuf);
+		  if (argc != 2) {
+					 printf("Usage : [./filename] [devname]\n");
+					 return 0;
+		  }
+		 		  
+		 // dev = pcap_lookupdev(errbuf);
+		 // if (dev == NULL) {
+		//			 fprintf (stderr, "Couldn't find default device : %s\n", errbuf);
+		//		 return(2);
+		 // }
+		 dev = argv[1];
+		  printf("Device : %s\n", dev);
+
+		  handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
 		  if (handle == NULL) {
 					 fprintf(stderr, "Couldn't open device %s : $s\n", dev, errbuf);
 					 return(2);
